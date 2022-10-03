@@ -12,260 +12,211 @@
     output_array_transformed:
         .string "New array: "
 
-    output_array_end:
+    new_line:
         .string "\n"
 
-    format_output_uint64:
-        .string "%lu "
+    format_output_qword:
+        .string "%lld "
 
-    format_input_uint64:
-        .string "%lu"
+    format_input_qword:
+        .string "%lld"
 
 .text
-    .globl  main
-    .type   main, @function
+    .global  main                               # Обозначаем entry point
+    .type   main, @function                     
     .type   read_array, @function
+    .type   transform_array, @function
     .type   print_array, @function
 
     read_array:
-        # Сохраняем указатель стэка
-        push rbp
+        push rbp                                # Пролог
         mov rbp, rsp
 
-        # Выделим память под размер массива, указатель на массив, текущее значение и переменную цикла
-        sub rsp, 32
-        mov qword ptr[rbp - 32], rdi    # Размер массива
-        mov qword ptr[rbp - 24], 0      # Текущее значение
-        mov qword ptr[rbp - 16], 0      # Переменная цикла
-        mov qword ptr[rbp - 8], 0       # Указатель на массив
+        push rdi                                # Сохраняем rdi на стэк
+        push rbx                                # Сохраняем rbx на стэк (callee-saved register)
+        push r12                                # Сохраняем r12 на стэк (callee-saved register)
+        push r13                                # Сохраняем r12 на стэк (callee-saved register)
+        mov r13, rdi                            # Сохраняем переданный размер в r13
+        
+        sal rdi, 3                              # Умножаем переданный размер на 8 битовым сдвигом влево
+        call malloc@plt                         # Выделяем память через malloc
+        mov rbx, rax                            # Сохраняем указатель на выделенную память в rbx
 
-        # Умножим размер массива на 8 и получим размер в байтах для malloc
-        mov rax, qword ptr[rbp - 32]
-        mov rbx, 8
-        mul rbx
-
-        # Выделяем память через malloc
-        mov rdi, rax
-        call malloc@plt
-
-        # Сохраняем указатель
-        mov qword ptr[rbp - 8], rax
-
-        # Цикл для заполнения массива
+        xor r12, r12
         loop_read_start:
-            # Сравнение переменной цикла с размером, если >= размера, то прыжок на конец
-            mov rcx, qword ptr[rbp - 16]
-            cmp rcx, qword ptr[rbp - 32]
-            jge loop_read_end
+            cmp r12, r13                        # Сравнение переменной цикла с размером
+            jge loop_read_end                   # Если переменная цикла >= размера, то прыгаем на конец цикла
 
-            # Подсказка для ввода
-            lea rdi, input_element[rip]
-            mov eax, 0
-            call printf@plt
+            lea rdi, input_element[rip]         # Кладем в rdi указатель на подсказку для ввода
+            xor eax, eax                        # Нулим rax перед вызовом printf
+            call printf@plt                     # Выводим подсказку для ввода числа
 
-            # Ввод элемента в переменную на стэке
-            lea rdi, format_input_uint64[rip]
-            lea rsi, qword ptr[rbp - 24]
-            mov eax, 0
-            call scanf@plt
+            lea rdi, format_input_qword[rip]    # Кладем в rdi указатель на форматирование числа
+            lea rsi, [rbx + 8 * r12]            # Передаем указатель на элемент массива, в который нужно произвести запись числа
+            xor eax, eax                        # Нулим rax перед вызовом scanf
+            call scanf@plt                      # Вводим число
 
-            mov rbx, qword ptr[rbp - 24]    # Записываем считанный элемент в регистр
-            mov rdx, qword ptr[rbp - 8]     # Записываем указатель на наш массив в регистр
-            mov r8, qword ptr[rbp - 16]     # Восстанавливаем переменную итерации
-            mov [rdx + 8 * r8], rbx         # Записываем в память со сдвигом полученное число *(array + 8 * i) = element
-
-            # Увеличиваем переменную цикла
-            inc qword ptr[rbp - 16]
+            inc r12
             jmp loop_read_start
         loop_read_end:
+        mov rax, rbx                            # Устаналиваем возвращаемое значение (кладем указатель на массив в rax)
 
-        # Восстанавливаем переданные в функцию аргументы и возвращаем указатель на заполненный массив в rax
-        mov rdi, qword ptr[rbp - 32]
-        mov rax, qword ptr[rbp - 8]
-        leave
+        pop r13                                 # Восстанавливаем r13 к изначальному состоянию
+        pop r12                                 # Восстанавливаем r12 к изначальному состоянию
+        pop rbx                                 # Восстанавливаем rbx к изначальному состоянию
+        pop rdi                                 # Восстанавливаем rdi к изначальному состоянию (оптимизируем последующие вызовы)
+        
+        leave                                   # Эпилог
         ret
 
     transform_array:
-        # Сохраняем указатель стэка
-        push rbp
+        push rbp                                # Пролог
         mov rbp, rsp
+        
+        push rdi                                # Сохраняем rdi на стэк    
+        push rsi                                # Сохраняем rsi на стэк
+        push rbx                                # Сохраняем rbx на стэк (callee-saved register)
+        push r12                                # Сохраняем r12 на стэк (callee-saved register)
+        push r13                                # Сохраняем r13 на стэк (callee-saved register)
+        push r14                                # Сохраняем r14 на стэк (callee-saved register)
+        push r15                                # Сохраняем r15 на стэк (callee-saved register)
+        
+        mov rbx, rdi                            # Кладем указатель на введенный массив в rbx 
+        mov r15, rsi                            # Кладем размер массива в r15 
+                                
+        mov rdi, rsi                            # Кладем размер массива в rdi (первый аргумент malloc)
+        sal rdi, 3                              # Умножаем размер массива на 8 битовым сдвигом влево (получим кол-во байт которое нам нужно выделить)           
+        call malloc@plt                         # Вызываем malloc
+        mov r12, rax                            # Сохраняем указатель на новый массив, полученный после вызова malloc   
 
-        # Выделим память под размер массива, указатель на старый и новый массивы
-        sub rsp, 24
-        mov qword ptr[rbp - 24], rsi    # Размер массива
-        mov qword ptr[rbp - 16], rdi    # Указатель на старый массив
-        mov qword ptr[rbp - 8], 0       # Указатель на новый массив
-
-        # Умножим размер массива на 8 и получим размер в байтах для malloc
-        mov rax, rsi
-        mov rbx, 8
-        mul rbx
-
-        # Выделяем память через malloc
-        mov rdi, rax
-        call malloc@plt
-
-        # Сохраняем указатель
-        mov qword ptr[rbp - 8], rax
-
-        mov rcx, 1 # Переменная цикла по старому массиву
-        mov rbx, 0 # Переменная цикла по новому массиву
-        mov rdx, qword ptr[rbp - 24] # Размер массива
+        mov r13, 1                              # Ставим переменную цикла по старому массива равной 1 (идем по нечетным индексам)
+        xor r14d, r14d                          # Зануляем переменную цикла по новому массиву (сначала записываем нечетные элементы)
         loop_odd_start:
-            # Сравнение переменных цикла с размером, если хотя бы одна из них >= размера, то прыжок на конец
-            cmp rcx, rdx
-            cmp rbx, rdx
-            jge loop_odd_end
+            cmp r13, r15                        # Сравнение переменной цикла по старому массиву с его размером
+            cmp r14, r15                        # Сравнение переменной цикла нового массива с его размером
+            jge loop_odd_end                    # Если хотя бы одна из переменных цикла >= размера массива, то прыгаем на конец цикла
 
-            mov r8, qword ptr[rbp - 16]         # Перемещаем указатель на старый массив
-            mov r9, qword ptr[rbp - 8]          # Перемещаем указатель на новый массив
-            mov r10, qword ptr[r8 + 8 * rcx]    # Перемещаем текущий элемент
-            mov qword ptr[r9 + 8 * rbx], r10    # Заменяем элемент в новом массиве *(new_array + 8 * i) = element
+            mov r8, qword ptr[rbx + 8 * r13]    # Перемещаем в r8 значение старого массива на позиции r13 <=> element = *((qword*)(rbx + 8 * r13))
+            mov qword ptr[r12 + 8 * r14], r8    # Перемещаем значение из r8 в новый массив на позицию r14 <=> *((qword*)(r12 + 8 * r14)) = r8
 
-            # Увеличиваем переменные итерации
-            inc rbx
-            add rcx, 2
-            jmp loop_odd_start
+            add r13, 2                          # Смещаем переменную цикла по старому массиву на следующее нечетное число     
+            inc r14                             # Увеличиваем переменную цикла по новому массиву на один
+            jmp loop_odd_start                  # Прыгаем на начало цикла
         loop_odd_end:
 
-        # Обновляем индекс итерации по старому массиву
-        mov rdx, 0
-        mov rax, qword ptr[rbp - 24]
-        mov rcx, 2
-        div rcx
+        xor r13d, r13d                          # Зануляем переменную цикла по старому массиву (теперь идем по четным индексам)
+        mov r14, r15                            # Перемещаем размер в переменную цикла по новому массиву
+        sar r14, 1                              # Целочисленно делим на два размер массива побитовым сдвигом (мы заполнили [половину] массива элементами на нечетных индексах)
 
-        mov rcx, 0 # Индекс итерации по старому массиву
-        mov rbx, rax # Индекс итерации по новому массиву (середина нового массива)
-        mov rdx, qword ptr[rbp - 24] # Размер массива
         loop_even_start:
-            # Сравнение переменных цикла с размером, если хотя бы одна из них >= размера, то прыжок на конец
-            cmp rcx, rdx
-            cmp rbx, rdx
-            jge loop_even_end
+            cmp r13, r15                        # Сравнение переменной цикла по старому массиву с его размером
+            cmp r14, r15                        # Сравнение переменной цикла нового массива с его размером
+            jge loop_even_end                   # Если хотя бы одна из переменных цикла >= размера массива, то прыгаем на конец цикла
 
-            mov r8, qword ptr[rbp - 16]         # Перемещаем указатель на старый массив
-            mov r9, qword ptr[rbp - 8]          # Перемещаем указатель на новый массив
-            mov r10, qword ptr[r8 + 8 * rcx]    # Перемещаем текущий элемент
-            mov qword ptr[r9 + 8 * rbx], r10    # Заменяем элемент в новом массиве *(new_array + 8 * i) = element
+            mov r8, qword ptr[rbx + 8 * r13]    # Перемещаем в r8 значение старого массива на позиции r13 <=> element = *((qword*)(rbx + 8 * r13))
+            mov qword ptr[r12 + 8 * r14], r8    # Перемещаем значение из r8 в новый массив на позицию r14 <=> *((qword*)(r12 + 8 * r14)) = r8
 
-            # Увеличиваем переменные итерации
-            inc rbx
-            add rcx, 2
-            jmp loop_even_start
+            add r13, 2                          # Смещаем переменную цикла по старому массиву на следующее четное число     
+            inc r14                             # Увеличиваем переменную цикла по новому массиву на один
+            jmp loop_even_start                 # Прыгаем на начало цикла
         loop_even_end:
+            
+        pop r15                                 # Восстанавливаем r15 к изначальному состоянию
+        pop r14                                 # Восстанавливаем r14 к изначальному состоянию
+        pop r13                                 # Восстанавливаем r13 к изначальному состоянию
+        pop r12                                 # Восстанавливаем r12 к изначальному состоянию
+        pop rbx                                 # Восстанавливаем rbx к изначальному состоянию
+        pop rsi                                 # Восстанавливаем rsi к изначальному состоянию (оптимизируем последующие вызовы)
+        pop rdi                                 # Восстанавливаем rdi к изначальному состоянию (оптимизируем последующие вызовы)
 
-        # Восстанавливаем переданные в функцию аргументы и возвращаем указатель на новый массив в rax
-        mov rdi, qword ptr[rbp - 16]
-        mov rsi, qword ptr[rbp - 24]
-        mov rax, qword ptr[rbp - 8]
-
-        leave
+        leave                                   # Эпилог
         ret
 
     print_array:
-        push rbp
+        push rbp                                # Пролог
         mov rbp, rsp
+        push rdi                                # Сохраняем rdi на стэк
+        push rsi                                # Сохраняем rsi на стэк
+        push rbx                                # Сохраняем rbx на стэк (callee-saved register)
+        push r12                                # Сохраняем r12 на стэк (callee-saved register)
+        push r13                                # Сохраняем r13 на стэк (callee-saved register)
 
-        # Выделим память под указатель на строку перед массивом, указатель на массив, его размер и переменную цикла
-        sub rsp, 32
-        mov qword ptr[rbp - 32], rdx    # Указатель на строку перед массивом
-        mov qword ptr[rbp - 24], rdi    # Указатель на массив
-        mov qword ptr[rbp - 16], rsi    # Размер массива
-        mov qword ptr[rbp - 8], 0       # Переменная цикла
+        mov rbx, rdi                            # Сохраняем указатель на массив в rbx
+        mov r13, rsi                            # Сохраняем размер массива в r13
 
-        # Выводим сообщение перед массивом
-        mov rdi, qword ptr[rbp - 32]
-        mov eax, 0
-        call printf@plt
+        mov rdi, rdx                            # Кладем указатель на сообщение перед выводом в rdi
+        xor eax, eax                            # Нулим rax перед вызовом printf
+        call printf@plt                         # Выводим сообщение в консоль
 
+        xor r12, r12                            # Задаем переменную цикла равную 0
         loop_print_start:
-            # Сравнение переменной цикла с размером, если >= размера, то прыжок на конец
-            mov rcx, qword ptr[rbp - 8]
-            mov rdx, qword ptr[rbp - 16]
-            cmp rcx, rdx
-            jge loop_print_end
+            cmp r12, r13                        # Сравнение переменной цикла с размером
+            jge loop_print_end                  # Если переменная цикла >= размера, то прыгаем на конец цикла
 
-            mov r8, qword ptr[rbp - 24]     # Перемещаем указатель на массив
-            mov r9, qword ptr[r8 + 8 * rcx] # Перемещаем элемент на позиции *(array + 8 * i) и кладем в r9
+            lea rdi, format_output_qword[rip]   # Кладем указатель на форматирование вывода числа в rdi
+            mov rsi, qword ptr[rbx + 8 * r12]   # Кладем число на позиции r12 в массиве в rsi, эквивалентно rsi = *((qword*)(rbx + 8 * r12))
+            xor eax, eax                        # Нулим rax перед вызовом printf
+            call printf@plt                     # Выводим число в консоль
 
-            # Выводим элемент на экран с нужным форматированием
-            lea rdi, format_output_uint64[rip]
-            mov rsi, r9
-            mov eax, 0
-            call printf@plt
-
-            # Увеличиваем переменную цикла
-            inc qword ptr[rbp - 8]
-            jmp loop_print_start
+            inc r12                             # Увеличиваем переменную цикла
+            jmp loop_print_start                # Прыгаем на начало цикла
         loop_print_end:
 
-        # Заканчиваем вывод '\n'
-        lea rdi, output_array_end[rip]
-        mov eax, 0
-        call printf@plt
+        lea rdi, new_line[rip]                  # Кладем указатель на '\n' в rdi
+        xor eax, eax                            # Нулим rax перед вызовом printf
+        call printf@plt                         # Выводим '\n' в консоль
+        
+        pop r13                                 # Восстанавливаем r13 к изначальному состоянию
+        pop r12                                 # Восстанавливаем r12 к изначальному состоянию
+        pop rbx                                 # Восстанавливаем rbx к изначальному состоянию
+        pop rsi                                 # Восстанавливаем rsi к изначальному состоянию (оптимизируем последующие вызовы)
+        pop rdi                                 # Восстанавливаем rdi к изначальному состоянию (оптимизируем последующие вызовы)
 
-        # Восстанавливаем переданные в функцию агрументы
-        mov rdi, qword ptr[rbp - 24]
-        mov rsi, qword ptr[rbp - 16]
-        mov rdx, qword ptr[rbp - 32]
-
-        leave
+        xor eax, eax                            # Нулим rax как показатель того, что функция отработала успешно
+        leave                                   # Эпилог
         ret
 
     main:
-        push rbp
+        push rbp                                # Пролог
         mov rbp, rsp
+        push rbx                                # Сохраняем rbx на стэк (callee-saved register)
+        push r12                                # Сохраняем r12 на стэк (callee-saved register)
 
-        # Выделение памяти под локальные переменные
-        # Размер массива, указатель на введенный массив, указатель на новый массив
-        # Для сохранения состояния стэка нужно 8 байт, для всего остального 24, значит выделяем 32 байта
-        sub rsp, 32
+        lea rdi, msg_input_size[rip]            # Передаем подсказку для ввода размера массива
+        call printf@plt                         # Выводим подсказку о вводе размера массива
 
-        # Выводим подсказку о вводе размера массива
-        lea rdi, msg_input_size[rip]
-        mov eax, 0
-        call printf@plt
+        lea rdi, format_input_qword[rip]        # Передаем форматирование числа (первый аргумент)
+        mov rsi, rsp                            # Указатель на место в памяти, куда нужно записать число (второй аргумент)
+        call scanf@plt                          # Вызываем scanf c указанными аргументами (вводим размер массива с консоли)
 
-        # Вводим размер массива с консоли
-        lea rdi, format_input_uint64[rip]
-        lea rsi, qword ptr[rbp - 24]
-        mov eax, 0
-        call scanf@plt
+        mov rdi, qword ptr[rsp]                 # Кладем размер массива в rdi
+        cmp rdi, 0                              # Сравниваем размер массива с нулем
+        jle main_final                          # Если размер <= 0, то прыгаем в конец
 
-        # Вызываем read_array, получаем в rax указатель на массив
-        mov rdi, qword ptr[rbp - 24]
-        call read_array
+        call read_array                         # Вызываем read_array, получаем в rax указатель на заполненный массив
 
-        # Сохраняем указатель на введенный массив на стэк
-        mov qword ptr[rbp - 16], rax
+        mov rsi, rdi                            # Перемещаем размер массива в rsi, откуда последующие функции берут размер
+        mov rdi, rax                            # Кладем указатель на введенный массив в rdi
+        call transform_array                    # Вызываем функцию, которая сначала ставит элементы с нечетными индексами, а потом с четными
 
-        mov rdi, qword ptr[rbp - 16] # Указатель на массив
-        mov rsi, qword ptr[rbp - 24] # Размер массива
-        call transform_array
+        mov rbx, rdi                            # Сохраняем указатель на введеный массив в rbx
+        mov rdi, rax                            # Кладем в rdi указатель на трансформированный массив
+        lea rdx, output_array_transformed[rip]  # Форматирование перед выводом трансформированного массива
+        call print_array                        # Печатаем трансформированный массив
 
-        # Сохраняем указатель на трансформированный массив на стэк
-        mov qword ptr[rbp - 8], rax
+        mov r12, rdi                            # Сохраняем указатель на трансформированный массив в r12
+        mov rdi, rbx                            # Кладем указатель на старый массив в rdi
+        lea rdx, output_array_initial[rip]      # Форматирование перед выводом старого массива
+        call print_array                        # Печатаем старый массив
 
-        # Печатаем новый массив
-        mov rdi, qword ptr[rbp - 8]
-        mov rsi, qword ptr[rbp - 24]
-        lea rdx, output_array_transformed[rip]
-        call print_array
+        call free@plt                           # Удаляем введенный массив
+        mov rdi, r12                            # Кладем указатель на трансформированный массив в rdi
+        call free@plt                           # Удаляем трансформированный массив
 
-        # Печаатаем старый массив
-        mov rdi, qword ptr[rbp - 16]
-        mov rsi, qword ptr[rbp - 24]
-        lea rdx, output_array_initial[rip]
-        call print_array
-
-        # Удаляем исходный массив
-        mov rdi, qword ptr[rbp - 16]
-        call free@plt
-
-        # Удаляем трансформированный массив
-        mov rdi, qword ptr[rbp - 8]
-        call free@plt
-
-        mov	rax, 0
+        main_final:
+        pop r12                                 # Восстанавливаем r12 к изначальному состоянию
+        pop rbx                                 # Восстанавливаем rbx к изначальному состоянию
+        
+        xor eax, eax                            # Нулим rax как показатель корректного завершения работы программы
         leave
         ret
