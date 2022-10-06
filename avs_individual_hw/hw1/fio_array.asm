@@ -81,7 +81,7 @@
         ret
         
     write_array_to_file:
-        push rbp
+        push rbp                                # Пролог
         mov rbp, rsp    
         
         push rdi                                # Сохраняем rdi на стэк для оптимизации вызовов
@@ -134,5 +134,5 @@
         pop rsi                                 # Восстанавливаем rsi к изначальному состоянию
         pop rdi                                 # Восстанавливаем rdi к изначальному состоянию
         
-        leave
-        ret
+        leave                                   # Эпилог
+        ret                                         

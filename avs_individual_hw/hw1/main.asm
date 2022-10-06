@@ -3,6 +3,7 @@
 .include "transform_array.asm"
 .include "stdio_array.asm"
 .include "fio_array.asm"
+.include "generate_array.asm"
 
 .text
     .global  main                               # Обозначаем entry point
@@ -90,7 +91,49 @@
         call printf@plt                         # Выводим сообщение в консоль
         
         .run_files_final:
-       
+        pop r12                                 # Восстанавливаем r12 к изначальному состоянию
+        pop rbx                                 # Восстанавливаем rbx к изначальному состоянию
+        
+        leave
+        ret
+        
+    run_random_generated:
+        push rbp                                # Пролог
+        mov rbp, rsp
+                
+        push rbx                                # Сохраняем rbx (callee-saved register)
+        push r12                                # Сохраняем r12 (callee-saved register)
+        
+        call generate_array                     # Генерируем массив с заданным размером
+        mov rbx, rax                            # Сохраняем указатель на сгенерированный массив в rbx
+        mov r12, rdx                            # Сохраняем размер сгенерированного массива в r13
+        
+        cmp rax, 0                              # Сравниваем указатель с nullptr
+        je .generate_failed                     # Если указатель равен nullptr, то сгенерировать массив не удалось, прыгаем на метку для вывода ошибки в консоль
+        
+        mov rdi, rbx                            # Перемещаем указатель на массив в rdi (первый аргумент)
+        mov rsi, r12                            # Перемещаем размер массива в rsi (второй аргумент)
+        call transform_array                    # Вызываем трансформацию массива 
+        mov rbx, rax                            # Сохраняем новый указатель в rbx (старый будет сохранен в rdi, благодаря нашим вызовам)
+        
+        lea rdx, generated_file_name[rip]       # Кладем указатель на строку с названием файла для вывода исходного массива в rdx (третий аргумент)
+        call write_array_to_file                # Записываем сгенерированный массив в файл
+        call free@plt                           # Удаляем сгенерированный массив (после запись в файл rdi все еще содержит валидный указатель)
+        
+        mov rdi, rbx                            # Кладем указатель на трансформированный массив в rdi (первый аргумент)
+        mov rsi, r12                            # Кладем размер в rsi (второй аргумент)
+        lea rdx, generated_transformed_file_name[rip]   # Кладем указатель на строку с названием файла для вывода трансформированного массива в rdx (третий аргумент)
+        call write_array_to_file                # Записываем трансформированный массив в файл
+        call free@plt                           # Удаляем трансформированный массив
+        
+        jmp .run_random_generated_final         # Пропускаем метку с выводом ошибки
+        
+        .generate_failed:
+        lea rdi, generated_failed[rip]          # Сообщение о неудачном чтении массива с консоли
+        xor eax, eax                            # Нулим rax
+        call printf@plt                         # Выводим сообщение в консоль
+        
+        .run_random_generated_final:
         pop r12                                 # Восстанавливаем r12 к изначальному состоянию
         pop rbx                                 # Восстанавливаем rbx к изначальному состоянию
         
@@ -102,11 +145,19 @@
         mov rbp, rsp
         push r12                                # Сохраняем r12 на стэк (callee-saved register)
         push r13                                # Сохраняем r13 на стэк (callee-saved register)
+        sub rsp, 16
         
-        mov r12, rdi                            # Размер массива аргументов командной строки
+        xor r12d, r12d
+        mov r12d, edi                           # Размер массива аргументов командной строки
         mov r13, rsi                            # Указатель размера аргументов командной строки
         
-        cmp r12, 4                              # Проверяем равно ли число аргументов 4 (-f input_file.txt output_file.txt)
+        cmp r12d, 2                             # Проверяем равно ли число аргументов 2 (-g)
+        je .generate_all_mode                   # Если равно, то прыгаем на метку где происходит генерация массива вместе с размером
+        
+        cmp r12d, 3                             # Проверяем равно ли число аргументов 3 (-g value)
+        je .generate_by_size_mode               # Если равно, то прыгаем на метку где происходит генерация массив по заданному размеру
+        
+        cmp r12d, 4                             # Проверяем равно ли число аргументов 4 (-f input_file.txt output_file.txt)
         je .file_mode                           # Если равно, то прыгаем на метку где происходит вызов функции, работающей с файлами
         
         .console_mode:
@@ -117,8 +168,25 @@
         mov rdi, [r13 + 16]                     # Кладем в rdi указатель на строку с именем входного файла (первый аргумент)
         mov rsi, [r13 + 24]                     # Кладем в rsi указатель на строку с именем выходного файла (второй аргумент)
         call run_files                          # Ввод массива из файла, преобразование, вывод в файл
+        jmp .main_final
+        
+        .generate_all_mode:
+        xor edi, edi                            # Нулим rdi как показатель того, что размер массива тоже нужно сгенерировать
+        call run_random_generated               # Генерация массива, трансформация и вывод
+        jmp .main_final
+        
+        .generate_by_size_mode:
+        mov rdi, [r13 + 16]                     # Передаем указатель на строку которую нужно преобразовать
+        lea rsi, format_input_qword[rip]        # Кладем указатель на форматирование числа (второй аргумент)
+        lea rdx, qword ptr[rbp - 16]            # Передаем указатель на то, куда хотим записать число
+        xor eax, eax                            # Нулим rax
+        call sscanf@plt                         # Парсим строку в число
+            
+        mov rdi, qword ptr[rbp - 16]            # Кладем полученное число в rdi
+        call run_random_generated               # Генерация массива по заданному размеру, трансформация и вывод
 
         .main_final:
+        add rsp, 16
         pop r13                                 # Восстанавливаем r13 к изначальному состоянию
         pop r12                                 # Восстанавливаем r12 к изначальному состоянию
         

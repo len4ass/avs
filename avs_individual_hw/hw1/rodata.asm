@@ -31,3 +31,12 @@
         
     file_failed_reading:
         .string "Failed to read from file\n"
+        
+    generated_failed:
+        .string "Failed to generate array\n"
+        
+    generated_file_name:
+        .string "gen_array.txt"
+        
+    generated_transformed_file_name:
+        .string "transformed_gen_array.txt"
