@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="42f36898-92b7-4b79-be2f-365c4898c9e9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/asm_program/asm_program" beforeDir="false" afterPath="$PROJECT_DIR$/asm_program/asm_program" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/asm_program/asm_program.o" beforeDir="false" afterPath="$PROJECT_DIR$/asm_program/asm_program.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/asm_program/fio_array.asm" beforeDir="false" afterPath="$PROJECT_DIR$/asm_program/fio_array.asm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program.c" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O0" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O0" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O1" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O2" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O3" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Ofast" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Ofast" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Os" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Os" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Отчет.md" beforeDir="false" afterPath="$PROJECT_DIR$/Отчет.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2GOZHnHup4RA60Od9aE0cBzjDzn" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="42f36898-92b7-4b79-be2f-365c4898c9e9" name="Changes" comment="" />
+      <created>1666261508533</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1666261508533</updated>
+      <workItem from="1666261528036" duration="1091000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

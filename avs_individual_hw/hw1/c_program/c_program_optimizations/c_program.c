@@ -71,6 +71,10 @@ void run_console() {
 
 int64_t *read_array_from_file(const char *input, int64_t *size) {
     FILE *file_handle = fopen(input, "r");
+    if (file_handle == NULL) {
+        return NULL;
+    }
+
     fscanf(file_handle, "%lld", size);
 
     if (*size <= 0) {
