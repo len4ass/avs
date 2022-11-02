@@ -4,18 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="42f36898-92b7-4b79-be2f-365c4898c9e9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/asm_program/asm_program" beforeDir="false" afterPath="$PROJECT_DIR$/asm_program/asm_program" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/asm_program/asm_program.o" beforeDir="false" afterPath="$PROJECT_DIR$/asm_program/asm_program.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/asm_program/fio_array.asm" beforeDir="false" afterPath="$PROJECT_DIR$/asm_program/fio_array.asm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program.c" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O0" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O0" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O1" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O1" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O2" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O2" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O3" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_O3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Ofast" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Ofast" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Os" beforeDir="false" afterPath="$PROJECT_DIR$/c_program/c_program_optimizations/c_program_Os" afterDir="false" />
+    <list default="true" id="1a0ecbcd-e432-467a-83ba-f209bbd81f50" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.hw1.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.hw1.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/file_tests/input_1000000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/file_tests/input_250000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/file_tests/input_500000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/file_tests/output_1000000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/file_tests/output_250000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/file_tests/output_500000.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/random_tests/random_gen_8522557.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests/random_tests/random_transformed_8522557.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Отчет.md" beforeDir="false" afterPath="$PROJECT_DIR$/Отчет.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -29,7 +29,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="2GOZHnHup4RA60Od9aE0cBzjDzn" />
+  <component name="ProjectId" id="2GzmzZHlgFKx1IoxowgRG0zGrFy" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -51,12 +51,12 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="42f36898-92b7-4b79-be2f-365c4898c9e9" name="Changes" comment="" />
-      <created>1666261508533</created>
+      <changelist id="1a0ecbcd-e432-467a-83ba-f209bbd81f50" name="Changes" comment="" />
+      <created>1667400051612</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1666261508533</updated>
-      <workItem from="1666261528036" duration="1091000" />
+      <updated>1667400051612</updated>
+      <workItem from="1667400059961" duration="596000" />
     </task>
     <servers />
   </component>

@@ -1,0 +1,9 @@
+# ninja log v5
+0	121	6889471166146357	CMakeFiles/c_program_optimizations.dir/c_program.c.obj	e09753ddcb729cfd
+122	291	6889471167823555	c_program_optimizations.exe	d1dfdc8b9002a528
+2	257	6890366474914938	CMakeFiles/c_program_optimizations.dir/c_program.c.obj	e09753ddcb729cfd
+258	461	6890366476916443	c_program_optimizations.exe	d1dfdc8b9002a528
+2	135	6890375289913708	CMakeFiles/c_program_optimizations.dir/c_program.c.obj	e09753ddcb729cfd
+135	308	6890375291613695	c_program_optimizations.exe	d1dfdc8b9002a528
+2	99	6890377919494242	CMakeFiles/c_program_optimizations.dir/c_program.c.obj	e09753ddcb729cfd
+99	255	6890377921024240	c_program_optimizations.exe	d1dfdc8b9002a528
