@@ -1,3 +1,0 @@
-C:/Users/leone/Desktop/Code/avs/avs/avs_individual_hw/hw2/c_program/c_program_optimizations/cmake-build-debug/CMakeFiles/c_program_optimizations.dir
-C:/Users/leone/Desktop/Code/avs/avs/avs_individual_hw/hw2/c_program/c_program_optimizations/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/leone/Desktop/Code/avs/avs/avs_individual_hw/hw2/c_program/c_program_optimizations/cmake-build-debug/CMakeFiles/rebuild_cache.dir

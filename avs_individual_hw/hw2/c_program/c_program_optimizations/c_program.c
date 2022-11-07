@@ -19,7 +19,11 @@ char *read_string(FILE *file, int64 *size) {
     int64 i = 0;
     while (1) {
         current_char = (char)getc(file);
-        if (current_char == '\n' || current_char == EOF || current_char == '\0') {
+        if (current_char == EOF || current_char == '\0') {
+            break;
+        }
+
+        if (current_char == '\n' && file == stdin) {
             break;
         }
 
@@ -64,7 +68,7 @@ char *generate_string(int64 *size, int64 *sequence_length) {
     if (*sequence_length == 0) {
         *sequence_length = rand();
     }
-    *sequence_length = *sequence_length % 101;
+    *sequence_length = *sequence_length % 21;
 
     char *string = malloc(*size + 1);
     int64 rnd;

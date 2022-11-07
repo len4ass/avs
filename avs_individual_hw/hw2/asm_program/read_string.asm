@@ -31,18 +31,24 @@
             mov rdi, rbx                        # Кладем в rdi указатель на поток ввода
             call getc@plt                       # Получаем char с потока
             
-            mov byte ptr[rsp - 8], al           # Сохраняем char 
+            mov byte ptr[rbp - 8], al           # Сохраняем char 
             
-            cmp byte ptr[rsp - 8], 255          # Сравниваем char с 255 (EOF)
+            cmp byte ptr[rbp - 8], 255          # Сравниваем char с 255 (EOF)
             je .end_read_string_loop            # Если char = EOF, то выходим из цикла (прыгаем на метку end_read_string_loop)
             
-            cmp byte ptr[rsp - 8], 0            # Сравниваем char c 0 ('\0' = NULL)
+            cmp byte ptr[rbp - 8], 0            # Сравниваем char c 0 ('\0' = NULL)
             je .end_read_string_loop            # Если char = '\0', то выходим из цикла (прыгаем на метку end_read_string_loop)
             
-            cmp byte ptr[rsp - 8], 10           # Сравниваем char с 10 ('\n')
-            je .end_read_string_loop            # Если char = '\n', то выходим из цикла (прыгаем на метку end_read_string_loop)
+            cmp byte ptr[rbp - 8], 10           # Сравниваем char с 10 ('\n')
+            je .cmp_input_ptr                   # Если char = '\n', то прыгаем на метку cmp_input_ptr, где проверяем, чему равен указатель на поток ввода
+            jmp .skip_cmp_input_ptr             # Иначе скипаем проверку
             
-            mov al, byte ptr[rsp - 8]           # Кладем char в 8битный регистр перед тем, как положить в буфер
+            .cmp_input_ptr:
+            cmp rbx, stdin[rip]                 # Сравниваем указатель на поток ввода с stdin
+            je .end_read_string_loop            # Если указатель на поток ввода равен stdin, то выходим из цикла (прыгаем на метку end_read_string_loop)
+            
+            .skip_cmp_input_ptr:
+            mov al, byte ptr[rbp - 8]           # Кладем char в 8битный регистр перед тем, как положить в буфер
             mov byte ptr[r13 + r14], al         # Кладем в буфер на следующее место
             inc r14                             # Увеличиваем позицию буфера
             

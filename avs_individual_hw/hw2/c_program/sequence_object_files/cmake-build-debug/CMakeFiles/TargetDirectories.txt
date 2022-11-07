@@ -1,3 +1,0 @@
-C:/Users/leone/Desktop/Code/avs/avs/avs_individual_hw/hw2/c_program/array_func_object_files/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-C:/Users/leone/Desktop/Code/avs/avs/avs_individual_hw/hw2/c_program/array_func_object_files/cmake-build-debug/CMakeFiles/array_func_object_files.dir
-C:/Users/leone/Desktop/Code/avs/avs/avs_individual_hw/hw2/c_program/array_func_object_files/cmake-build-debug/CMakeFiles/edit_cache.dir

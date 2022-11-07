@@ -25,10 +25,10 @@
         call printf@plt                         # Выводим подсказку
 
         lea rdi, format_input_qword[rip]        # Передаем форматирование числа (первый аргумент)
-        lea rsi, qword ptr[rsp - 16]            # Указатель на место в памяти, куда нужно записать число (второй аргумент)
+        lea rsi, qword ptr[rbp - 16]            # Указатель на место в памяти, куда нужно записать число (второй аргумент)
         xor eax, eax
         call scanf@plt                          # Вызываем scanf c указанными аргументами
-        mov r13, qword ptr[rsp - 16]
+        mov r13, qword ptr[rbp - 16]
         
         call getchar@plt                        # Скармливаем '\n', иначе оно попадет при чтении
         
@@ -131,11 +131,11 @@
 
         mov rdi, r15                            # Передаем указатель на поток к файлу
         lea rsi, format_output_qword[rip]       # Передаем указатель на форматирование ввода
-        lea rdx, qword ptr[rsp - 16]            # Указатель на место в памяти, куда нужно записать число (второй аргумент)
+        lea rdx, qword ptr[rbp - 24]            # Указатель на место в памяти, куда нужно записать число (второй аргумент)
         xor eax, eax
         call fscanf@plt                         # Вызываем scanf c указанными аргументами
         
-        mov rdi, qword ptr[rsp - 16]            # Перемещаем длину последовательности, которая нам нужна, в rdi
+        mov rdi, qword ptr[rbp - 24]            # Перемещаем длину последовательности, которая нам нужна, в rdi
         cmp rdi, 0                              # Сравниваем с 0
         jle .files_invalid_seq_len              # Если длина <= 0, то прыгаем на метку files_invalid_seq_len
         
@@ -143,7 +143,7 @@
         call read_string                        # Вызываем функцию чтения строки
             
         mov rbx, rax                            # Сохраняем указатель считанной строки в rbx
-        mov qword ptr[rsp - 8], rdx             # Сохраняем размер строки на стэк
+        mov qword ptr[rbp - 16], rdx             # Сохраняем размер строки на стэк
         
         mov rdi, r15                            # Кладем указатель на поток к файлу в rdi
         call fclose@plt                         # Закрываем поток
@@ -151,18 +151,18 @@
         cmp rbx, 0                              # Сравниваем указатель на строку с 0 (NULL)
         je .files_invalid_string                # Прыгаем на метку files_invalid_string, если указатель NULL
         
-        mov rdi, qword ptr[rsp - 16]            # Кладем в rdi длину искомой последовательности
-        mov rsi, qword ptr[rsp - 8]             # Кладем в rsi размер строки
+        mov rdi, qword ptr[rbp - 24]            # Кладем в rdi длину искомой последовательности
+        mov rsi, qword ptr[rbp - 16]             # Кладем в rsi размер строки
         cmp rdi, rsi                            # Сравниваем длину искомой последовательности и размер строки
         jg .files_invalid_seq_len_greater       # Если длина искомой последовательности больше размера строки, то прыгаем на метку files_invalid_seq_len_greater
 
         mov rdi, rbx                            # Кладем указатель на строку в rdi
-        mov rsi, qword ptr[rsp - 8]             # Кладем размер строки в rsi
-        mov rdx, qword ptr[rsp - 16]            # Кладем длину искомой последовательности в rdx
+        mov rsi, qword ptr[rbp - 16]             # Кладем размер строки в rsi
+        mov rdx, qword ptr[rbp - 24]            # Кладем длину искомой последовательности в rdx
         call find_sequence                      # Вызываем функцию, которая ищет валидную последовательность указанной длины в строке
         
         mov r12, rax                            # Сохраняем указатель на последовательность в r12
-        cmp rax, 0                              # Сравниваем указатель с 0 (NULL)
+        cmp r12, 0                              # Сравниваем указатель с 0 (NULL)
         je .files_sequence_not_found            # Если указатель на последовательность равен 0, то прыгаем на метку files_sequence_not_found
         
         mov rdi, r14                            # Кладем указатель на строку к файлу вывода в rdi
@@ -238,8 +238,8 @@
         push r12                                # Сохраняем r12 (callee-saved register)
         sub rsp, 16
         
-        mov qword ptr[rsp - 16], rdi            # Сохраняем размер генерируемой строки
-        mov qword ptr[rsp - 8], rsi             # Сохраняем длину искомой последовательности
+        mov qword ptr[rbp - 16], rdi            # Сохраняем размер генерируемой строки
+        mov qword ptr[rbp - 8], rsi             # Сохраняем длину искомой последовательности
         
         cmp rdi, 0                              # Сравниваем размер генерируемой строки с 0
         jl .run_random_generated_final          # Если < 0, прыгаем на метку run_random_generated_final
@@ -247,22 +247,22 @@
         cmp rsi, 0                              # Сравниваем длину искомой последовательности с 0
         jl .run_random_generated_final          # Если < 0, прыгаем на метку run_random_generated_final
        
-        mov rdi, qword ptr[rsp - 16]            # Передаем размер сгенерированной строки
-        mov rsi, qword ptr[rsp - 8]             # Передаем размер искомой последовательности
+        mov rdi, qword ptr[rbp - 16]            # Передаем размер сгенерированной строки
+        mov rsi, qword ptr[rbp - 8]             # Передаем размер искомой последовательности
         call generate_string
         
         mov rbx, rax                            # Сохраняем указатель на строку в rbx
-        mov qword ptr[rsp - 16], rdx            # Сохраняем размер строки
-        mov qword ptr[rsp - 8], rcx             # Сохраняем длину последовательности
+        mov qword ptr[rbp - 16], rdx            # Сохраняем размер строки
+        mov qword ptr[rbp - 8], rcx             # Сохраняем длину последовательности
         
-        mov rdi, qword ptr[rsp - 16]            
-        mov rsi, qword ptr[rsp - 8]
+        mov rdi, qword ptr[rbp - 16]            
+        mov rsi, qword ptr[rbp - 8]
         cmp rsi, rdi                            # Сравниваем длину последовательности и размер строки
         jg .random_string_smaller               # Если длина последовательности больше размера строки, то прыгаем на метку random_string_smaller
         
         mov rdi, rbx                            # Кладем указатель на строку в rdi
-        mov rsi, qword ptr[rsp - 16]            # Кладем размер строки в rsi
-        mov rdx, qword ptr[rsp - 8]             # Кладем длину последовательности в rdx
+        mov rsi, qword ptr[rbp - 16]            # Кладем размер строки в rsi
+        mov rdx, qword ptr[rbp - 8]             # Кладем длину последовательности в rdx
         call find_sequence                      # Вызываем функцию, которая ищет валидную последовательность указанной длины в строке
         
         mov r12, rax                            # Сохраняем указатель на последовательность в r12
@@ -273,28 +273,28 @@
         lea rdi, generated_file_name[rip]       # Кладем указатель на имя файла для сгенерированной строки
         lea rsi, file_write[rip]                # Кладем указатель на флаг "w"
         call fopen@plt                          # Открываем поток к файлу
-        mov qword ptr[rsp - 16], rax            # Сохраняем указатель на поток к файлу 
+        mov qword ptr[rbp - 16], rax            # Сохраняем указатель на поток к файлу 
             
-        mov rdi, qword ptr[rsp - 16]            # Кладем в rdi указатель на поток к файлу
+        mov rdi, qword ptr[rbp - 16]            # Кладем в rdi указатель на поток к файлу
         lea rsi, format_string[rip]             # Кладем в rsi указатель на форматирование строки
         mov rdx, rbx                            # Кладем в rdx указатель на строку
         call fprintf@plt                        # Выводим в файл строку
         
-        mov rdi, qword ptr[rsp - 16]            # Кладем в rdi указатель на поток к файлу
+        mov rdi, qword ptr[rbp - 16]            # Кладем в rdi указатель на поток к файлу
         call fclose@plt                         # Закрываем поток к файлу
         
         lea rdi, generated_seq_file_name[rip]   # Кладем указатель на имя файла для найденной последовательности
         lea rsi, file_write[rip]                # Кладем указатель на флаг "w"
         call fopen@plt                          # Открываем поток к файлу
         
-        mov qword ptr[rsp - 16], rax            # Сохраняем указатель на поток к файлу 
+        mov qword ptr[rbp - 16], rax            # Сохраняем указатель на поток к файлу 
         
-        mov rdi, qword ptr[rsp - 16]            # Кладем в rdi указатель на поток к файлу
+        mov rdi, qword ptr[rbp - 16]            # Кладем в rdi указатель на поток к файлу
         lea rsi, format_string[rip]             # Кладем в rsi указатель на форматирование последовательности
         mov rdx, r12                            # Кладем в rdx указатель на последовательность
         call fprintf@plt                        # Выводим в файл последовательность
         
-        mov rdi, qword ptr[rsp - 16]            # Кладем в rdi указатель на поток к файлу
+        mov rdi, qword ptr[rbp - 16]            # Кладем в rdi указатель на поток к файлу
         call fclose@plt                         # Закрываем поток к файлу
         
         mov rdi, rbx                            # Кладем в rdi указатель на строку
