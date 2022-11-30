@@ -1,0 +1,10 @@
+[Queue 1] Served to customer with ID=7
+[Queue 1] Served to customer with ID=8
+[Queue 1] Served to customer with ID=9
+[Queue 2] Served to customer with ID=1
+[Queue 1] Served to customer with ID=10
+[Queue 2] Served to customer with ID=2
+[Queue 2] Served to customer with ID=3
+[Queue 2] Served to customer with ID=4
+[Queue 2] Served to customer with ID=5
+[Queue 2] Served to customer with ID=6
