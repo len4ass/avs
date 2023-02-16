@@ -1,1 +1,0 @@
-CMakeLists.txt not found in C:\Users\leone\Desktop\Code\avs\avs\avs_individual_hw\hw3\c_program\c_program_optimizations Select CMakeLists.txt
