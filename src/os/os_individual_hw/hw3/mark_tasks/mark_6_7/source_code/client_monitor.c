@@ -18,8 +18,7 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server_address;
 
     // Создаем буферы для хранения закодированной части и декодированной
-    char *decoded_array = malloc(sizeof(char) * 1024);
-    int *encoded_part = malloc(sizeof(int) * 1024);
+    char *msg = malloc(sizeof(char) * 16384);
 
     // Создаем клиентский сокет
     if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -42,32 +41,34 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Получаем закодированный массив
-    int bytes_received = recv(client_socket, encoded_part, sizeof(int) * 1024, 0);
+    // Принимаем все сообщения с сервера (синхронно)
+    while (1) {
+        int bytes_received = recv(client_socket, msg, sizeof(char) * 16384, 0);
+        if (bytes_received < 0) {
+            perror("recv");
+            exit(EXIT_FAILURE);
+        }
+
+        if (strcmp("/quit", msg) == 0) {
+            printf("Received server finalization signal\n");
+            break;
+        }
+
+        puts(msg);
+    }
+
+    memset(msg, 0, sizeof(char) * 16384);
+    int bytes_received = recv(client_socket, msg, sizeof(char) * 16384, 0);
     if (bytes_received < 0) {
-        perror("Recv failed");
+        perror("recv");
         exit(EXIT_FAILURE);
     }
 
-    printf("Received encoded array from server\n");
-
-    // Определяем размер полученного закодированного массива и декодируем его
-    int size = bytes_received / sizeof(int);
-    for (int i = 0; i < size; i++) {
-        decoded_array[i] = decrypt_char(encoded_part[i]);
-    }
-    decoded_array[size] = '\0';
-
-    printf("Decoded array: %s\n", decoded_array);
-    printf("Sending response back to server\n");
-
-    // Отправляем декодированный массив обратно на сервер
-    send(client_socket, decoded_array, size, 0);
+    printf("Decoding result: %s\n", msg);
 
     // Высвобождаем память
-    free(decoded_array);
-    free(encoded_part);
+    free(msg);
     close(client_socket);
-    printf("Client closed\n");
+    printf("Client monitor closed\n");
     return 0;
 }

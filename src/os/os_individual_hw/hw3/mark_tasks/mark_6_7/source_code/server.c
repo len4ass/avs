@@ -10,12 +10,28 @@
 #include "io.c"
 #define SHM_NAME "/mem"
 
+char *int_array_to_string(int *arr, int size) {
+    char *string = malloc(sizeof(char) * 1024);
+
+    strcpy( string, "[" );
+    for (size_t i = 0; i < size - 1; i++)
+    {
+        sprintf(&string[strlen(string)], "%d, ", arr[i]);
+    }
+
+    sprintf(&string[strlen(string)],"%d", arr[size - 1]);
+    strcat(string, "]");
+    return string;
+}
+
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Usage: %s <Port> <Proc Count>\n", argv[0]);
+    if (argc != 3 && argc != 4) {
+        printf("Usage: %s <Port> <Proc Count> <optional:client_monitor\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
+    int client_monitor = argc == 4 ? 1 : 0;
+    struct sockaddr_in client_monitor_address;
     int port = atoi(argv[1]);
     if (port < 1 || port > 65536) {
         printf("Proc count must be in [1, 65536] range\n");
@@ -58,13 +74,19 @@ int main(int argc, char *argv[]) {
     }
 
     // Начинаем прослушивание (максимум proc_count клиентов)
-    if (listen(server_socket, proc_count) < 0) {
+    if (listen(server_socket, proc_count + client_monitor) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
 
     printf("Server started on port %d\n", port);
     printf("Waiting for %d connections to occur\n", proc_count);
+    if (client_monitor == 1) {
+        printf("Waiting client monitor to connect\n");
+        socklen_t address_len = sizeof(client_monitor_address);
+        client_monitor = accept(server_socket, (struct sockaddr *)&client_monitor_address, &address_len);
+        printf("Connected client monitor: %s:%d\n", inet_ntoa(client_monitor_address.sin_addr), ntohs(client_monitor_address.sin_port));
+    }
 
     // Ждем proc_count подключений
     for (int i = 0; i < proc_count; i++) {
@@ -116,15 +138,32 @@ int main(int argc, char *argv[]) {
                 buffer[k++] = encoded_array[j];
             }
 
-            // Отправляем (end - start) * sizeof(int) байт
+            // Отправляем (end - start) * sizeof(int) байт клиенту декодировщику
             send(connections[i], &encoded_array[start], sizeof(int) * (end - start), 0);
+
+            // Дебаг сообщение для клиент монитора
+            char *str = malloc(sizeof(char) * 2048);
+            char *array_to_str = int_array_to_string(buffer, end - start);
+            snprintf(str, sizeof(char) * 2048, "Server sent array to client %d: %s", i + 1, array_to_str);
+            // Отправка сообщения клиент монитору о том, что сервер послал закодированный массив клиенту
+            send(client_monitor, str, sizeof(char) * 2048, 0);
 
             // Принимаем декодированный участок end - start байт
             int bytes_received = recv(connections[i], decoded_arr + start, end - start, 0);
             if (bytes_received < 0) {
                 printf("Failed getting data back from client %d\n", i);
             }
+            char *received_part = malloc(sizeof(char) * (end - start + 1));
+            received_part[end - start] = '\0';
+            memcpy(received_part, decoded_arr + start, end - start);
 
+            // Отправка сообщения клиент монитору о том, что сервер получил от клиента декодированный массив
+            snprintf(str, sizeof(char) * 2048, "Server got decoded array from client %d: %s", i + 1, received_part);
+            send(client_monitor, str, sizeof(char) * 2048, 0);
+
+            free(str);
+            free(array_to_str);
+            free(received_part);
             free(buffer);
             return 0;
         }
@@ -135,8 +174,17 @@ int main(int argc, char *argv[]) {
         wait(NULL);
     }
 
-    // Записываем результат декодирования в файл
+    // Посылаем сигнал о завершении монитору
+    char fin_msg[] = {"/quit"};
+    send(client_monitor, fin_msg, sizeof(fin_msg), 0);
+
+    // Ставим NULL на конец строки для корректного вывода
     decoded_arr[size] = '\0';
+
+    // Посылаем результат декодирования монитору
+    send(client_monitor, decoded_arr, size + 1, 0);
+
+    // Записываем результат декодирования в файл
     write_text("output.txt", decoded_arr);
     printf("Decoded array has been written to output.txt\n");
 
